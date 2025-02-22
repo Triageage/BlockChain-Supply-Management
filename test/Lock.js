@@ -124,3 +124,27 @@ describe("Lock", function () {
     });
   });
 });
+
+describe("TraceabilityV5", function () {
+  // We define a fixture to reuse the same setup in every test.
+  // We use loadFixture to run this setup once, snapshot that state,
+  // and reset Hardhat Network to that snapshot in every test.
+  async function deployTraceabilityFixture() {
+    const [owner, otherAccount] = await ethers.getSigners();
+
+    const Traceability = await ethers.getContractFactory("TraceabilityV5");
+    const traceability = await Traceability.deploy();
+
+    return { traceability, owner, otherAccount };
+  }
+
+  describe("Deployment", function () {
+    it("Should deploy the contract", async function () {
+      const { traceability } = await loadFixture(deployTraceabilityFixture);
+
+      expect(traceability.address).to.properAddress;
+    });
+
+    // Add more tests as needed
+  });
+});

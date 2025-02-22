@@ -2,7 +2,7 @@ const hre = require("hardhat");
 
 async function main() {
   console.log("Deploying contract...");
-  const Traceability = await hre.ethers.getContractFactory("Traceabilitytest");
+  const Traceability = await hre.ethers.getContractFactory("TraceabilityV5");
   console.log("Contract factory created");
   const traceability = await Traceability.deploy();
   console.log("Deployment transaction sent");

@@ -1,6 +1,3 @@
-//import express from 'express';
-//import { ethers } from "ethers";
-
 require("dotenv").config();
 const { ethers } = require("ethers");
 const express = require("express");
@@ -243,8 +240,13 @@ const abi = [
                   name: "timestamp",
                   type: "uint256",
                },
+               {
+                  internalType: "uint256",
+                  name: "expiry_date",
+                  type: "uint256",
+               },
             ],
-            internalType: "struct TraceabilityV3.ProductHistoryItem[]",
+            internalType: "struct TraceabilityV5.ProductHistoryItem[]",
             name: "",
             type: "tuple[]",
          },

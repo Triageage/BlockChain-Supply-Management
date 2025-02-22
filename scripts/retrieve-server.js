@@ -1,6 +1,3 @@
-//import express from 'express';
-//import { ethers } from "ethers";
-
 require("dotenv").config();
 const { ethers } = require("ethers");
 const express = require("express");
@@ -275,6 +272,24 @@ const abi = [
             name: "productCode",
             type: "bytes32",
          },
+         {
+            internalType: "string",
+            name: "unitDetails",
+            type: "string",
+         },
+      ],
+      name: "recordRetailer",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function",
+   },
+   {
+      inputs: [
+         {
+            internalType: "bytes32",
+            name: "productCode",
+            type: "bytes32",
+         },
       ],
       name: "verifyProduct",
       outputs: [
@@ -286,18 +301,18 @@ const abi = [
                   type: "bytes32",
                },
                {
-                  internalType: "bytes32",
-                  name: "action",
-                  type: "bytes32",
-               },
-               {
                   internalType: "string",
-                  name: "details",
+                  name: "stage",
                   type: "string",
                },
                {
                   internalType: "string",
-                  name: "location",
+                  name: "additional_details",
+                  type: "string",
+               },
+               {
+                  internalType: "string",
+                  name: "performer_details",
                   type: "string",
                },
                {
@@ -305,8 +320,13 @@ const abi = [
                   name: "timestamp",
                   type: "uint256",
                },
+               {
+                  internalType: "uint256",
+                  name: "expiry_date",
+                  type: "uint256",
+               },
             ],
-            internalType: "struct Traceabilityv2.ProductHistoryItem[]",
+            internalType: "struct TraceabilityV5.ProductHistoryItem[]",
             name: "",
             type: "tuple[]",
          },
@@ -316,7 +336,7 @@ const abi = [
    },
 ];
 
-const contractAddress = process.env.EMITTER_ADDRESS;
+const contractAddress = process.env.FINAL_CONTRACT_1;
 
 console.log(contractAddress);
 
@@ -345,10 +365,11 @@ app.get("/api/product/:productCode", async (req, res) => {
       const historyItems = productHistory.map((item, index) => ({
          index: index + 1,
          name: ethers.decodeBytes32String(item.name),
-         action: ethers.decodeBytes32String(item.action),
-         details: item.details,
-         location: item.location,
+         stage: item.stage,
+         additional_details: item.additional_details,
+         performer_details: item.performer_details,
          timestamp: new Date(Number(item.timestamp) * 1000),
+         expiry_date: new Date(Number(item.expiry_date) * 1000),
       }));
 
       res.status(200).json({
@@ -368,16 +389,16 @@ app.post("/api/create", async (req, res) => {
    const name = req.body.name;
    const ingredientData = req.body.ingredientData;
    const producerDetails = req.body.producerDetails;
-   const productionDate = req.body.productionDate;
+   const expiryDate = req.body.expiryDate;
 
-   console.log(name, ingredientData, producerDetails, productionDate);
+   console.log(name, ingredientData, producerDetails, expiryDate);
 
    try {
       const tx = await contract.initializeProduct(
          name,
          ingredientData,
          producerDetails,
-         productionDate
+         expiryDate
       );
       const receipt = await tx.wait();
       console.log("Transaction hash:", receipt.transactionHash);
@@ -399,7 +420,6 @@ app.post("/api/update", async (req, res) => {
    const facilityDetails = req.body.facilityDetails;
    const producerDetails = req.body.producerDetails;
 
-   //console.log(productCode, facilityDetails, producerDetails);
    let tx;
 
    try {
@@ -414,10 +434,7 @@ app.post("/api/update", async (req, res) => {
          );
       } else if (producerDetails == "Retailer") {
          console.log("Retailer");
-         tx = await contract.recordDistributionAndRetail(
-            productCode,
-            facilityDetails
-         );
+         tx = await contract.recordRetailer(productCode, facilityDetails);
       }
 
       const receipt = await tx.wait();
